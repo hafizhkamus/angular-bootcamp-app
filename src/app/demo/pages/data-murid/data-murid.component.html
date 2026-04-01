@@ -1,0 +1,115 @@
+<div class="row">
+    <div class="col-sm-12">
+        <app-card cardTitle="Data Murid">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="search-bar" style="width: 300px;">
+                    <input type="text" class="form-control" placeholder="Cari nama atau kelas..."
+                        [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+                </div>
+                <button class="btn btn-primary d-flex align-items-center" (click)="openAddModal(studentModal)">
+                    <i class="ti ti-plus me-1"></i> Tambah Murid
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nama</th>
+                            <th scope="col">Kelas</th>
+                            <th scope="col">Umur</th>
+                            <th scope="col">Tgl Masuk</th>
+                            <th scope="col" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let student of students; let i = index">
+                            <th scope="row">{{ (page - 1) * pageSize + i + 1 }}</th>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ student.nama }}</h6>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ student.namaKelas }}</td>
+                            <td>{{ student.umur }}</td>
+                            <td>{{ student.tanggalMasuk }}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-light-primary me-2" title="Edit"
+                                    (click)="openEditModal(student, studentModal)">
+                                    <i class="ti ti-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light-danger" title="Delete"
+                                    (click)="deleteStudent(student.id)">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="students.length === 0">
+                            <td colspan="6" class="text-center py-4 text-muted">Tidak ada data murid</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="text-muted">
+                    Showing {{ (page - 1) * pageSize + 1 }} to {{ getMin(page * pageSize, totalItems) }} of {{
+                    totalItems }} entries
+                </span>
+                <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize" [maxSize]="5"
+                    [rotate]="true" [boundaryLinks]="true" (pageChange)="refreshStudents()"></ngb-pagination>
+            </div>
+        </app-card>
+    </div>
+</div>
+
+<!-- Shared Add/Edit Modal -->
+<ng-template #studentModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">
+            {{ isEditMode ? 'Edit Murid' : 'Tambah Murid Baru' }}
+        </h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="modal-body">
+        <!-- Alert -->
+        <div *ngIf="alertMessage" class="alert" [class.alert-danger]="alertType === 'danger'"
+            [class.alert-success]="alertType === 'success'">
+            {{ alertMessage }}
+        </div>
+
+        <form>
+            <!-- Nama -->
+            <div class="mb-3">
+                <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="nama" placeholder="Masukkan nama murid"
+                    [(ngModel)]="formData.nama" name="nama" />
+            </div>
+
+            <!-- Kelas -->
+            <div class="mb-3">
+                <label for="kelas" class="form-label">Kelas <span class="text-danger">*</span></label>
+                <select class="form-select" id="kelas" [(ngModel)]="formData.idKelas" name="idKelas">
+                    <option [ngValue]="null" disabled>Pilih Kelas</option>
+                    <option *ngFor="let kelas of kelasList" [ngValue]="kelas.id">{{ kelas.namaKelas }}</option>
+                </select>
+            </div>
+
+            <!-- Umur -->
+            <div class="mb-3">
+                <label for="umur" class="form-label">Umur <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="umur" placeholder="Masukkan umur"
+                    [(ngModel)]="formData.umur" name="umur" min="1" />
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss()">Batal</button>
+        <button type="button" class="btn btn-primary" (click)="saveStudent(modal)">
+            {{ isEditMode ? 'Update' : 'Simpan' }}
+        </button>
+    </div>
+</ng-template>

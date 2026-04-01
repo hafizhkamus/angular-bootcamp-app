@@ -1,0 +1,27 @@
+.search-bar {
+  position: relative;
+  input {
+    padding-left: 35px;
+  }
+  &::before {
+    content: '\eb05'; /* ti-search from tabler icons */
+    font-family: 'tabler-icons';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    z-index: 10;
+  }
+}
+
+.table {
+  th, td {
+    vertical-align: middle;
+  }
+}
+
+.badge {
+  padding: 6px 12px;
+  font-weight: 500;
+}

@@ -1,0 +1,25 @@
+<app-card cardTitle="Training Detail Page">
+    <p class="mb-3">Click the buttons below to trigger different types of toast notifications:</p>
+
+    <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-success" (click)="showSuccess()">
+            <i class="ti ti-check me-1"></i> Success Toast
+        </button>
+
+        <button class="btn btn-danger" (click)="showError()">
+            <i class="ti ti-x me-1"></i> Error Toast
+        </button>
+
+        <button class="btn btn-warning" (click)="showWarning()">
+            <i class="ti ti-alert-triangle me-1"></i> Warning Toast
+        </button>
+
+        <button class="btn btn-info" (click)="showInfo()">
+            <i class="ti ti-info-circle me-1"></i> Info Toast
+        </button>
+
+        <button class="btn btn-primary" (click)="showCustom()">
+            <i class="ti ti-settings me-1"></i> Custom Toast
+        </button>
+    </div>
+</app-card>

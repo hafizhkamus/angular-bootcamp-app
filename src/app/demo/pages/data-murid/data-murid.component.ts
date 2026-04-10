@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbPagination, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CardComponent } from '../../../theme/shared/components/card/card.component';
 import { MuridService } from '../../../services/murid.service';
@@ -11,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'app-data-murid',
     standalone: true,
-    imports: [CommonModule, FormsModule, NgbPagination, CardComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, NgbPagination, CardComponent],
     templateUrl: './data-murid.component.html',
     styleUrls: ['./data-murid.component.scss']
 })
@@ -20,6 +20,7 @@ export class DataMuridComponent implements OnInit {
     private muridService = inject(MuridService);
     private http = inject(HttpClient);
     private toastr = inject(ToastrService);
+    private fb = inject(FormBuilder);
 
     cdr = inject(ChangeDetectorRef);
 
@@ -34,18 +35,21 @@ export class DataMuridComponent implements OnInit {
     isEditMode = false;
     selectedStudentId: number | null = null;
 
-    formData = {
-        nama: '',
-        idKelas: null as number | null,
-        umur: null as number | null
-    };
+    muridForm!: FormGroup;
 
     alertMessage: string = '';
     alertType: 'success' | 'danger' | '' = '';
+    formSubmitted = false;
 
 
 
     ngOnInit(): void {
+        this.muridForm = this.fb.group({
+            nama: ['', [Validators.required]],
+            idKelas: [null, [Validators.required]],
+            umur: [null, [Validators.required, Validators.min(15), Validators.max(19)]]
+        });
+
         this.loadKelas();
         this.loadMurid();
     }
@@ -103,23 +107,25 @@ export class DataMuridComponent implements OnInit {
     openAddModal(content: any) {
         this.isEditMode = false;
         this.selectedStudentId = null;
-        this.formData = { nama: '', idKelas: null, umur: null };
+        this.muridForm.reset();
         this.alertMessage = '';
         this.alertType = '';
+        this.formSubmitted = false;
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
     }
 
     openEditModal(student: any, content: any) {
         this.isEditMode = true;
         this.selectedStudentId = student.id;
+        this.formSubmitted = false;
 
         this.muridService.getMuridById(this.selectedStudentId).subscribe({
             next: (res) => {
-                this.formData = {
+                this.muridForm.patchValue({
                     nama: res.nama,
                     idKelas: res.idKelas,
                     umur: res.umur
-                }
+                });
 
                 this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
                 this.cdr.detectChanges();
@@ -131,16 +137,19 @@ export class DataMuridComponent implements OnInit {
     }
 
     saveStudent(modal: any) {
-        if (!this.formData.nama || !this.formData.idKelas || !this.formData.umur) {
-            this.alertMessage = 'Semua field harus diisi!';
+        this.formSubmitted = true;
+
+        if (this.muridForm.invalid) {
+            this.muridForm.markAllAsTouched();
+            this.alertMessage = 'Mohon perbaiki error pada form!';
             this.alertType = 'danger';
             return;
         }
 
         const payload = {
-            nama: this.formData.nama,
-            idKelas: Number(this.formData.idKelas),
-            umur: Number(this.formData.umur)
+            nama: this.muridForm.value.nama,
+            idKelas: Number(this.muridForm.value.idKelas),
+            umur: Number(this.muridForm.value.umur)
         };
 
         if (this.isEditMode && this.selectedStudentId !== null) {

@@ -81,28 +81,45 @@
             {{ alertMessage }}
         </div>
 
-        <form>
+        <form [formGroup]="muridForm">
             <!-- Nama -->
             <div class="mb-3">
                 <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="nama" placeholder="Masukkan nama murid"
-                    [(ngModel)]="formData.nama" name="nama" />
+                    formControlName="nama"
+                    [class.is-invalid]="muridForm.get('nama')?.invalid && (muridForm.get('nama')?.touched || formSubmitted)" />
+                <div class="invalid-feedback"
+                    *ngIf="muridForm.get('nama')?.invalid && (muridForm.get('nama')?.touched || formSubmitted)">
+                    Nama wajib diisi.
+                </div>
             </div>
 
             <!-- Kelas -->
             <div class="mb-3">
                 <label for="kelas" class="form-label">Kelas <span class="text-danger">*</span></label>
-                <select class="form-select" id="kelas" [(ngModel)]="formData.idKelas" name="idKelas">
+                <select class="form-select" id="kelas" formControlName="idKelas"
+                    [class.is-invalid]="muridForm.get('idKelas')?.invalid && (muridForm.get('idKelas')?.touched || formSubmitted)">
                     <option [ngValue]="null" disabled>Pilih Kelas</option>
                     <option *ngFor="let kelas of kelasList" [ngValue]="kelas.id">{{ kelas.namaKelas }}</option>
                 </select>
+                <div class="invalid-feedback"
+                    *ngIf="muridForm.get('idKelas')?.invalid && (muridForm.get('idKelas')?.touched || formSubmitted)">
+                    Kelas wajib dipilih.
+                </div>
             </div>
 
             <!-- Umur -->
             <div class="mb-3">
                 <label for="umur" class="form-label">Umur <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="umur" placeholder="Masukkan umur"
-                    [(ngModel)]="formData.umur" name="umur" min="1" />
+                <input type="number" class="form-control" id="umur" placeholder="Masukkan umur (15-19)"
+                    formControlName="umur"
+                    [class.is-invalid]="muridForm.get('umur')?.invalid && (muridForm.get('umur')?.touched || formSubmitted)" />
+                <div class="invalid-feedback"
+                    *ngIf="muridForm.get('umur')?.invalid && (muridForm.get('umur')?.touched || formSubmitted)">
+                    <span *ngIf="muridForm.get('umur')?.errors?.['required']">Umur wajib diisi.</span>
+                    <span *ngIf="muridForm.get('umur')?.errors?.['min'] || muridForm.get('umur')?.errors?.['max']">Umur
+                        harus antara 15 - 19 tahun.</span>
+                </div>
             </div>
         </form>
     </div>
